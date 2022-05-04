@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Storage;
+
 class UsuarioController extends Controller
 {
     /**
@@ -16,7 +18,7 @@ class UsuarioController extends Controller
     {
         //
         $datos['usuarios']=Usuario::paginate(5);
-        return view('usuario.index');
+        return view('usuario.index',$datos);
     }
 
     /**
@@ -45,7 +47,8 @@ class UsuarioController extends Controller
 
         }
         Usuario::insert($datosUsuario);
-        return response()->json($datosUsuario);
+        //return response()->json($datosUsuario);
+        return redirect('usuario')->with('mensaje','Usuario agregado con éxito');
     }
 
     /**
@@ -65,9 +68,11 @@ class UsuarioController extends Controller
      * @param  \App\Models\Usuario  $usuario
      * @return \Illuminate\Http\Response
      */
-    public function edit(Usuario $usuario)
+    public function edit($id)
     {
         //
+        $usuario=Usuario::findOrFail($id);
+        return view('usuario.edit', compact('usuario'));
     }
 
     /**
@@ -77,9 +82,19 @@ class UsuarioController extends Controller
      * @param  \App\Models\Usuario  $usuario
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Usuario $usuario)
+    public function update(Request $request, $id)
     {
         //
+        $datosUsuario = request()->except(['_token','_method']);
+        if($request->hasFile('photo')){
+            $usuario=Usuario::findOrFail($id);
+            Storage::delete('public/'.$usuario->photo);
+            $datosUsuario['photo']=$request->file('photo')->store('uploads','public');
+
+        }
+        Usuario::where('id','=',$id)->update($datosUsuario);
+        $usuario=Usuario::findOrFail($id);
+        return redirect('usuario');
     }
 
     /**
@@ -88,8 +103,15 @@ class UsuarioController extends Controller
      * @param  \App\Models\Usuario  $usuario
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Usuario $usuario)
+    public function destroy($id)
     {
         //
+        $usuario=Usuario::findOrFail($id);
+
+        if(Storage::delete('public/'.$usuario->photo)){
+            Usuario::destroy($id);
+        }
+        
+        return redirect('usuario')->with('mensaje','Usuario eliminado con éxito');
     }
 }
