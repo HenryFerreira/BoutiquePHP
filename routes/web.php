@@ -24,9 +24,9 @@ Route::get('/', function () {
 
 // Route::get('/usuario/create',[UsuarioController::class, 'create']);
 
-Route::resource('usuario',UsuarioController::class);
+Route::resource('usuario',UsuarioController::class)->middleware('auth');
 
-Auth::routes();
+Auth::routes(['reset'=>false]);
 
 Route::get('/home', [UsuarioController::class, 'index'])->name('home');
 

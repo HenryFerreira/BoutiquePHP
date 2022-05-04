@@ -41,6 +41,21 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         //
+
+        $campos=[
+          'name'=>'required|string|max:30',
+          'email'=>'required|email',
+          'password'=>'required|string|min:8',
+          'mobile'=>'required|string|max:9',
+          'photo'=>'required|max:10000|mimes:jpeg,png,jpg,jfif',
+        ];
+        $mensaje=[
+            'required'=>'El :attribute es requerido',
+            'photo.required'=>'La Foto es Requerida',
+        ];
+
+        $this->validate($request, $campos, $mensaje);
+
         $datosUsuario = request()->except('_token');
         if($request->hasFile('photo')){
             $datosUsuario['photo']=$request->file('photo')->store('uploads','public');
@@ -85,6 +100,24 @@ class UsuarioController extends Controller
     public function update(Request $request, $id)
     {
         //
+
+        $campos=[
+            'name'=>'required|string|max:30',
+            'email'=>'required|email',
+            'password'=>'required|string|min:8',
+            'mobile'=>'required|string|max:9',
+        ];
+        $mensaje=[
+            'required'=>'El :attribute es requerido',
+        ];
+
+        if($request->hasFile('photo')){
+            $campos=['photo'=>'required|max:10000|mimes:jpeg,png,jpg,jfif'];
+            $mensaje=['photo.required'=>'La Foto es Requerida'];
+        }
+
+        $this->validate($request, $campos, $mensaje);
+
         $datosUsuario = request()->except(['_token','_method']);
         if($request->hasFile('photo')){
             $usuario=Usuario::findOrFail($id);
@@ -94,7 +127,8 @@ class UsuarioController extends Controller
         }
         Usuario::where('id','=',$id)->update($datosUsuario);
         $usuario=Usuario::findOrFail($id);
-        return redirect('usuario');
+        //return redirect('usuario');
+        return redirect('usuario')->with('mensaje','Usuario Modificado con éxito');
     }
 
     /**
@@ -105,7 +139,7 @@ class UsuarioController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // 
         $usuario=Usuario::findOrFail($id);
 
         if(Storage::delete('public/'.$usuario->photo)){
