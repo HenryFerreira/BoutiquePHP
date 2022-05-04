@@ -15,6 +15,8 @@ class UsuarioController extends Controller
     public function index()
     {
         //
+        $datos['usuarios']=Usuario::paginate(5);
+        return view('usuario.index');
     }
 
     /**
@@ -25,6 +27,7 @@ class UsuarioController extends Controller
     public function create()
     {
         //
+        return view('usuario.create');
     }
 
     /**
@@ -36,6 +39,13 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         //
+        $datosUsuario = request()->except('_token');
+        if($request->hasFile('photo')){
+            $datosUsuario['photo']=$request->file('photo')->store('uploads','public');
+
+        }
+        Usuario::insert($datosUsuario);
+        return response()->json($datosUsuario);
     }
 
     /**
