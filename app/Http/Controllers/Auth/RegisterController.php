@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
+use App\Models\Usuario;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -69,5 +72,20 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    }
+
+    public function login(Request $request)
+    {   
+        $input = $request->all();
+     
+        $this->validate($request, [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if(auth()->attempt(array('email' => $input['email'], 'password' => $input['password'])))
+        {
+            Route::get('/home', [UsuarioController::class, 'index'])->name('home');
+        }
     }
 }

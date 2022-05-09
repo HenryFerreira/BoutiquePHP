@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\ProductoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,7 +25,9 @@ Route::get('/', function () {
 
 // Route::get('/usuario/create',[UsuarioController::class, 'create']);
 
-Route::resource('usuario',UsuarioController::class)->middleware('auth');
+Route::resource('usuario', UsuarioController::class)->middleware('auth');
+
+Route::resource('producto', ProductoController::class)->middleware('auth');
 
 Auth::routes(['reset'=>false]);
 
